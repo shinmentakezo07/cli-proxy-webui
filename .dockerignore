@@ -1,0 +1,54 @@
+# Git and GitHub folders
+**/.git
+**/.github
+
+# Docker/CI files we never want copied into image contexts (keep build contexts lean).
+# NOTE: do NOT ignore the root Dockerfile/docker-compose.yml — they ARE the build
+# definition for the root (panel+backend) context. Only exclude nested duplicates and
+# stray compose variants that are not part of the active build.
+**/docker-compose.cluster.yml
+**/.dockerignore
+**/.gitignore
+
+# Documentation
+**/docs
+**/README.md
+**/README_CN.md
+**/README_JA.md
+**/LICENSE
+
+# Runtime data folders (mounted as volumes, or regenerated)
+**/auths
+**/logs
+**/conv
+**/config.yaml
+
+# Frontend build artifacts and deps (rebuilt inside the image)
+ui/node_modules
+ui/dist
+ui/dist-ssr
+CLIProxyAPI/static/management.html
+
+# Go build artifacts (prebuilt binaries committed for local use — not for the image)
+CLIProxyAPI/CLIProxyAPI
+CLIProxyAPI/CLIProxyAPI_bin
+
+# Development / editor / agent tooling
+**/bin
+**/.vscode
+**/.claude
+**/.codex
+**/.codex-worktrees
+**/.gemini
+**/.serena
+**/.agent
+**/.agents
+**/.antigravitycli
+**/.opencode
+**/.idea
+**/.junie
+**/.worktrees
+**/.bmad
+**/_bmad
+**/_bmad-output
+**/skills

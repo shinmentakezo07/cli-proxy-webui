@@ -1,0 +1,53 @@
+# CLIProxyAPI — management panel + backend on a single API port (8317).
+#
+# Architecture (see README "Docker"):
+#   - backend: the Go CLIProxyAPI server (AI provider API + Management API).
+#   - panel:   nginx serving the React management SPA on port 8317 and reverse-
+#              proxying /v0/management, OAuth callbacks, and upstream AI API
+#              routes to the backend container.
+#
+# The browser hits ONE public port (8317) = same origin for the SPA and the API,
+# so the panel's auto-detected backend base works with zero per-user configuration,
+# no CORS, and OAuth callbacks (which the server reuses on the main port) work too.
+#
+# Usage:
+#   docker compose up -d --build
+#   open http://<host>:8317/   -> login with the management secret-key from config.yaml
+#
+# Override paths/env via .env (see .env.example).
+
+services:
+  backend:
+    build:
+      context: ./CLIProxyAPI
+      dockerfile: Dockerfile
+      args:
+        VERSION: ${VERSION:-dev}
+        COMMIT: ${COMMIT:-none}
+        BUILD_DATE: ${BUILD_DATE:-unknown}
+    image: ${CLI_PROXY_IMAGE:-cliproxy-backend:local}
+    container_name: cliproxy-backend
+    # Backend listens on 8317 internally; only the panel publishes 8317.
+    # nginx forwards X-Forwarded-For, and the Gin server trusts proxies by
+    # default, so c.ClientIP() reflects the real browser IP — keep
+    # remote-management.allow-remote + a secret-key in config.yaml for non-localhost.
+    expose:
+      - "8317"
+    volumes:
+      - ${CLI_PROXY_CONFIG_PATH:-./CLIProxyAPI/config.yaml}:/CLIProxyAPI/config.yaml
+      - ${CLI_PROXY_AUTH_PATH:-./CLIProxyAPI/auths}:/root/.cli-proxy-api
+      - ${CLI_PROXY_LOG_PATH:-./CLIProxyAPI/logs}:/CLIProxyAPI/logs
+    restart: unless-stopped
+
+  panel:
+    build:
+      context: ./ui
+      dockerfile: Dockerfile
+      args:
+        VERSION: ${VERSION:-dev}
+    container_name: cliproxy-panel
+    ports:
+      - "8317:8317"
+    depends_on:
+      - backend
+    restart: unless-stopped

@@ -1,0 +1,43 @@
+# The ui/ management panel is its own git repository
+# (github.com/shinmentakezo07/webui) — do not track it here.
+ui/
+
+# Prebuilt Go binaries committed for local use on the host — rebuild inside
+# the backend Docker image, never commit.
+CLIProxyAPI/CLIProxyAPI
+CLIProxyAPI/CLIProxyAPI_bin
+
+# Prebuilt management panel artifact (produced by scripts/build-panel.sh);
+# the backend image no longer bakes it — nginx serves the panel.
+CLIProxyAPI/static/management.html
+
+# Runtime data (mounted as volumes, never versioned)
+CLIProxyAPI/auths
+CLIProxyAPI/logs
+CLIProxyAPI/conv
+CLIProxyAPI/config.yaml
+
+# Node build artifacts
+node_modules
+dist
+dist-ssr
+
+# Editor / agent / runtime tooling
+**/.vscode
+**/.codex
+**/.codex-worktrees
+**/.gemini
+**/.serena
+**/.opencode
+**/.idea
+**/.claude
+**/.junie
+**/.worktrees
+**/.bmad
+**/_bmad
+**/_bmad-output
+**/skills
+
+# OS cruft
+.DS_Store
+Thumbs.db

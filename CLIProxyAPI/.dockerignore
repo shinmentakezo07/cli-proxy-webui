@@ -1,0 +1,50 @@
+# Git and GitHub folders
+.git
+.github
+
+# Docker/CI artifacts not needed in the backend image context.
+# NOTE: do NOT ignore Dockerfile — it is the active build definition
+# for ./CLIProxyAPI (root docker-compose.yml uses this as the backend image).
+# The panel compose lives at the repo root (../docker-compose.yml) and is
+# outside this context already.
+docker-compose.cluster.yml
+.dockerignore
+.gitignore
+.goreleaser.yml
+
+# Prebuilt Node.js panel and binaries (rebuilt / not part of a backend-only image)
+static/management.html
+CLIProxyAPI
+CLIProxyAPI_bin
+
+# Documentation and license
+docs
+README.md
+README_CN.md
+README_JA.md
+LICENSE
+
+# Runtime data folders (should be mounted as volumes)
+auths
+logs
+conv
+config.yaml
+
+# Development/editor
+bin
+.vscode
+.claude
+.codex
+.codex-worktrees
+.gemini
+.serena
+.agent
+.agents
+.antigravitycli
+.opencode
+.idea
+.junie
+.worktrees
+.bmad
+_bmad
+_bmad-output
