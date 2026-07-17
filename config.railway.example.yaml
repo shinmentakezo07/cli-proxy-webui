@@ -1,0 +1,19 @@
+# Minimal starter config for Railway (single all-in-one image).
+# The docker-entrypoint.sh overwrites `port:` with Railway's $PORT at startup.
+# For real use, set CONFIG_YAML (base64-encoded config.yaml) in Railway Variables
+# instead of relying on this safe-mode starter — it boots the panel + management API
+# but leaves the proxy AI API disabled (example api-keys) until you configure real keys.
+
+host: ""            # bind all interfaces (Railway reaches it via the proxy)
+port: 8080          # overwritten by docker-entrypoint.sh to match $PORT
+auth-dir: "/CLIProxyAPI/auths"
+
+remote-management:
+  allow-remote: true            # panel/API reached through Railway's public proxy (non-localhost)
+  secret-key: ""                # MUST set a strong key via CONFIG_YAML; empty => panel won't authenticate
+  disable-auto-update-panel: true   # serve the bundled panel only, never fetch from GitHub
+
+# Placeholder example keys => proxy AI endpoints (v1/v1beta/...) start in "safe mode" (disabled).
+# Replace with real keys via CONFIG_YAML to enable upstream providers.
+api-keys:
+  - "sk-example-replace-me"
