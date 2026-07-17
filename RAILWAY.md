@@ -75,11 +75,11 @@ config from PostgreSQL. On first start it bootstraps the database from
   port in the Postgres config store manually:
 
   ```sql
-  UPDATE config_store SET content = regexp_replace(content, '^port: [0-9]+', 'port: ' || current_setting('app.port', true), 'm') WHERE id = 'config';
+  -- Replace 8080 with the port Railway is using for your service.
+  UPDATE config_store
+  SET content = regexp_replace(content, '^port: [0-9]+', 'port: 8080', 'm')
+  WHERE id = 'config';
   ```
-
-  (Replace `app.port` with the actual port value; the example above assumes a
-  PostgreSQL variable is set, otherwise hardcode the desired port.)
 
 ## 5. Open the panel
 
