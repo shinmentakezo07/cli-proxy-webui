@@ -16,8 +16,10 @@ public URL to Railway's `PORT` (default `8080`). `docker-entrypoint.sh` writes
 
 > **Panel source:** The React panel lives in the separate `webui` repo
 > (`github.com/shinmentakezo07/webui`). `Dockerfile.railway` clones it at build
-> time, because the root repo's `.gitignore` excludes the `ui/` directory. Make sure
-> any panel changes you want deployed are committed and pushed to that repo first.
+> time, because the root repo's `.gitignore` excludes the `ui/` directory. The
+> Dockerfile pins a specific UI commit (`UI_COMMIT`) for reproducible builds.
+> To deploy newer panel changes, update `UI_COMMIT` in `Dockerfile.railway` and
+> push the root repo again.
 
 ## 2. Provide configuration via `CONFIG_YAML` (base64)
 

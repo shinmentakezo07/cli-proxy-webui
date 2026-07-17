@@ -12,10 +12,13 @@ WORKDIR /ui
 # gitignored in the root repo, so it is not present in the Railway build
 # context. Clone it here instead of relying on COPY.
 ARG UI_REPO=https://github.com/shinmentakezo07/webui.git
-ARG UI_BRANCH=main
+ARG UI_COMMIT=f552ffea622da49a6a7464e59fe767297a1f9cd1
 RUN apt-get update && apt-get install -y --no-install-recommends git ca-certificates \
     && rm -rf /var/lib/apt/lists/* \
-    && git clone --depth 1 --branch "${UI_BRANCH}" "${UI_REPO}" .
+    && git init . \
+    && git remote add origin "${UI_REPO}" \
+    && git fetch --depth 1 origin "${UI_COMMIT}" \
+    && git checkout "${UI_COMMIT}"
 
 RUN npm ci
 ARG VERSION=dev
