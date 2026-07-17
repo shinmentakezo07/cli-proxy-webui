@@ -14,6 +14,11 @@ public URL to Railway's `PORT` (default `8080`). `docker-entrypoint.sh` writes
 - New Project → deploy from this GitHub repo. Railway detects `Dockerfile.railway`
   via `railway.toml` and builds it.
 
+> **Panel source:** The React panel lives in the separate `webui` repo
+> (`github.com/shinmentakezo07/webui`). `Dockerfile.railway` clones it at build
+> time, because the root repo's `.gitignore` excludes the `ui/` directory. Make sure
+> any panel changes you want deployed are committed and pushed to that repo first.
+
 ## 2. Provide configuration via `CONFIG_YAML` (base64)
 
 The server reads its config from `config.yaml`. On Railway, set a **`CONFIG_YAML`**

@@ -7,9 +7,17 @@
 # Stage 1: build the React SPA into a single inlined dist/index.html.
 FROM node:20-bookworm AS panel-builder
 WORKDIR /ui
-COPY ui/package.json ui/package-lock.json ./
+
+# ui/ is a separate git repo (github.com/shinmentakezo07/webui) and is
+# gitignored in the root repo, so it is not present in the Railway build
+# context. Clone it here instead of relying on COPY.
+ARG UI_REPO=https://github.com/shinmentakezo07/webui.git
+ARG UI_BRANCH=main
+RUN apt-get update && apt-get install -y --no-install-recommends git ca-certificates \
+    && rm -rf /var/lib/apt/lists/* \
+    && git clone --depth 1 --branch "${UI_BRANCH}" "${UI_REPO}" .
+
 RUN npm ci
-COPY ui/ .
 ARG VERSION=dev
 ENV VERSION=${VERSION}
 RUN npm run build
