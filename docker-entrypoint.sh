@@ -32,7 +32,18 @@ else
 fi
 
 # 3) Ensure host binds all interfaces (default empty already does; leave as-is).
-# 4) Ensure auth dir exists.
+
+# 4) Patch the Postgres bootstrap template so fresh PGSTORE_DSN databases
+#    bootstrap with the Railway port (the server ignores --config when PGSTORE_DSN
+#    is set, so the port injection above does not apply).
+if [ -f "/CLIProxyAPI/config.example.yaml" ]; then
+  awk -v p="$PORT" '
+    !done && $0 ~ /^port:[[:space:]]*[0-9]+/ { sub(/^[^0-9]*port:[[:space:]]*[0-9]+/, "port: " p); done=1 }
+    { print }
+  ' /CLIProxyAPI/config.example.yaml > /CLIProxyAPI/config.example.yaml.tmp && mv /CLIProxyAPI/config.example.yaml.tmp /CLIProxyAPI/config.example.yaml
+fi
+
+# 5) Ensure auth dir exists.
 mkdir -p /CLIProxyAPI/auths
 
 echo "docker-entrypoint: starting CLIProxyAPI on port $PORT"

@@ -52,6 +52,7 @@ COPY --from=panel-builder /ui/dist/index.html /CLIProxyAPI/writable/static/manag
 
 # Bundled fallback config + the runtime port-shim entrypoint.
 COPY config.railway.example.yaml /CLIProxyAPI/config.railway.example.yaml
+COPY CLIProxyAPI/config.example.yaml /CLIProxyAPI/config.example.yaml
 COPY docker-entrypoint.sh /CLIProxyAPI/docker-entrypoint.sh
 RUN chmod +x /CLIProxyAPI/docker-entrypoint.sh
 

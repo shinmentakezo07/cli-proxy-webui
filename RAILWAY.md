@@ -61,6 +61,19 @@ For a remote config store instead of `CONFIG_YAML`, set `DEPLOY=cloud` plus the
 `.env.example` / `.env.cluster.example`. This is optional; `CONFIG_YAML` is the simple
 path.
 
+### Using `PGSTORE_DSN`
+
+When `PGSTORE_DSN` is set, the server ignores the local `config.yaml` and loads
+config from PostgreSQL. On first start it bootstraps the database from
+`config.example.yaml`, so the image bakes a copy and the entrypoint patches its
+`port` to match `$PORT`.
+
+- **Fresh database:** the server will boot with `port: $PORT` automatically.
+- **Existing database:** the config already stored in Postgres is used as-is. If
+  its `port` is not `$PORT`, set the Railway service variable `PORT` to that
+  value (e.g. `8317`) so Railway routes traffic to the bound port, or update the
+  port in the Postgres config store manually.
+
 ## 5. Open the panel
 
 Once deployed, open `https://<your-app>.up.railway.app/management.html` and log in with
