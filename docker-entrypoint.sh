@@ -10,6 +10,22 @@ PORT="${PORT:-8080}"
 CONFIG_FILE="/CLIProxyAPI/config.yaml"
 EXAMPLE_FILE="/CLIProxyAPI/config.railway.example.yaml"
 
+# Inject the current $PORT into a YAML file's top-level `port:` scalar.
+inject_port() {
+  file="$1"
+  if [ ! -f "$file" ]; then
+    return
+  fi
+  if grep -qE '^port:[[:space:]]*[0-9]+' "$file"; then
+    awk -v p="$PORT" '
+      !done && $0 ~ /^port:[[:space:]]*[0-9]+/ { sub(/^[^0-9]*port:[[:space:]]*[0-9]+/, "port: " p); done=1 }
+      { print }
+    ' "$file" > "$file.tmp" && mv "$file.tmp" "$file"
+  else
+    printf 'port: %s\n' "$PORT" | cat - "$file" > "$file.tmp" && mv "$file.tmp" "$file"
+  fi
+}
+
 # 1) Materialize config.yaml.
 if [ -s "$CONFIG_FILE" ]; then
   : # user-mounted config wins; we still fix its port below.
@@ -20,27 +36,15 @@ else
 fi
 
 # 2) Ensure a top-level `port: <PORT>` scalar is present and correct.
-#    Replace the first top-level `^port:` line; if absent, prepend it.
-if grep -qE '^port:[[:space:]]*[0-9]+' "$CONFIG_FILE"; then
-  # In-place replace of the (first) top-level port scalar using awk.
-  awk -v p="$PORT" '
-    !done && $0 ~ /^port:[[:space:]]*[0-9]+/ { sub(/^[^0-9]*port:[[:space:]]*[0-9]+/, "port: " p); done=1 }
-    { print }
-  ' "$CONFIG_FILE" > "$CONFIG_FILE.tmp" && mv "$CONFIG_FILE.tmp" "$CONFIG_FILE"
-else
-  printf 'port: %s\n' "$PORT" | cat - "$CONFIG_FILE" > "$CONFIG_FILE.tmp" && mv "$CONFIG_FILE.tmp" "$CONFIG_FILE"
-fi
+inject_port "$CONFIG_FILE"
 
 # 3) Ensure host binds all interfaces (default empty already does; leave as-is).
 
 # 4) Patch the Postgres bootstrap template so fresh PGSTORE_DSN databases
 #    bootstrap with the Railway port (the server ignores --config when PGSTORE_DSN
 #    is set, so the port injection above does not apply).
-if [ -f "/CLIProxyAPI/config.example.yaml" ]; then
-  awk -v p="$PORT" '
-    !done && $0 ~ /^port:[[:space:]]*[0-9]+/ { sub(/^[^0-9]*port:[[:space:]]*[0-9]+/, "port: " p); done=1 }
-    { print }
-  ' /CLIProxyAPI/config.example.yaml > /CLIProxyAPI/config.example.yaml.tmp && mv /CLIProxyAPI/config.example.yaml.tmp /CLIProxyAPI/config.example.yaml
+if [ -n "${PGSTORE_DSN:-}" ] && [ -f "/CLIProxyAPI/config.example.yaml" ]; then
+  inject_port "/CLIProxyAPI/config.example.yaml"
 fi
 
 # 5) Ensure auth dir exists.
